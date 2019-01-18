@@ -1,6 +1,7 @@
 import 'dart:io';
 import 'package:chat_app/main.dart';
 import 'package:chat_app/models/User.dart';
+import 'package:chat_app/userslist.dart';
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:image_picker/image_picker.dart';
@@ -60,10 +61,11 @@ class _DashboardPageState extends State<DashboardPage> {
         FirebaseStorage.instance.ref().child("profilePhoto").child(uId);
 
     StorageUploadTask task = await storageReference.putFile(file);
-    if (task.isSuccessful) {
-      var temp = storageReference.getDownloadURL();
+
+
+      var temp = await (await task.onComplete).ref.getDownloadURL();
       return temp;
-    }
+
   }
 
   void createAccount() {
@@ -75,6 +77,9 @@ class _DashboardPageState extends State<DashboardPage> {
         profilePhoto: this.imagPath);
     var mMap = user.toMap();
     mUsersReference.setData(mMap).whenComplete(() {
+
+      Navigator.pushReplacement(context ,new MaterialPageRoute(builder: (context) => new UsersList()));
+
       print('Account added successfully');
     }).catchError((e) => print(e));
   }

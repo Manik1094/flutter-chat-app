@@ -1,5 +1,6 @@
 import 'package:chat_app/homepage.dart';
 import 'package:chat_app/main.dart';
+import 'package:chat_app/userslist.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 
 import 'package:flutter/material.dart';
@@ -45,7 +46,7 @@ class LauncherPageState extends State<LauncherPage> {
       return HomePage();
     } else {
       print("UID IS : ${this.uId}");
-      return DashboardPage();
+      return UsersList();
     }
   }
 }

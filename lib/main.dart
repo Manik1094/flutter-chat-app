@@ -1,6 +1,8 @@
 import 'package:chat_app/homepage.dart';
+import 'package:chat_app/userslist.dart';
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 
 class HomePage extends StatefulWidget {
   @override
@@ -12,6 +14,8 @@ class _HomePageState extends State<HomePage> {
   String smsCode;
   String verificationId;
   bool isLoggedIn;
+  DocumentReference _documentReference;
+
 
   Future<void> verifyPhone() async {
     final PhoneCodeAutoRetrievalTimeout autoRetrieve = (String verId) {
@@ -63,11 +67,31 @@ class _HomePageState extends State<HomePage> {
                 onPressed: () {
                   FirebaseAuth.instance.currentUser().then((user) {
                     if (user != null) {
-                      Navigator.of(context).pop();
-                      Navigator.pushReplacement(
-                          context,
-                          new MaterialPageRoute(
-                              builder: (context) => DashboardPage()));
+                      print('User iddd : ${user.uid}');
+
+                      _documentReference = Firestore.instance.collection('Users').document(user.uid);
+
+                      _documentReference.get().then((snapShot){
+                        if(snapShot.exists){
+
+                          Navigator.pushReplacement(
+                              context,
+                              new MaterialPageRoute(
+                                  builder: (context) => UsersList()));
+
+                        }else{
+
+                          Navigator.pushReplacement(
+                              context,
+                              new MaterialPageRoute(
+                                  builder: (context) => DashboardPage()));
+
+                        }
+                      });
+
+
+
+
                     } else {
                       Navigator.of(context).pop();
                       signIn();
@@ -84,8 +108,26 @@ class _HomePageState extends State<HomePage> {
     FirebaseAuth.instance
         .signInWithPhoneNumber(verificationId: verificationId, smsCode: smsCode)
         .then((user) {
-      Navigator.pushReplacement(context,
-          new MaterialPageRoute(builder: (context) => DashboardPage()));
+          print('User iddd : ${user.uid}');
+      _documentReference = Firestore.instance.collection('Users').document(user.uid);
+
+      _documentReference.get().then((snapShot){
+        if(snapShot.exists){
+
+          Navigator.pushReplacement(
+              context,
+              new MaterialPageRoute(
+                  builder: (context) => UsersList()));
+
+        }else{
+
+          Navigator.pushReplacement(
+              context,
+              new MaterialPageRoute(
+                  builder: (context) => DashboardPage()));
+
+        }
+      });
     }).catchError((e) => print(e));
   }
 
